@@ -1,26 +1,28 @@
 <?php
 
-//! add return types
+//! add return types?
 //! change to last php version?
-//! add git
 //! removes echos
+//! if direcotry doesnt exists crashes -> add func that checks and creates directory at the start if doesnt exist
+//! chnage all the quotes to "
+//! add setup functions that will init everything needed.
 
+function setupUploads() {
+    if (is_dir("uploads/") == false) {
+        echo "created", PHP_EOL;
+        mkdir("uploads", 0755);
+    }
+}
 
 //! deleteOlderFile oldest file
 // ! for now doesnt create direcotry uploads if doesnt exist its broken >:)
 function deleteOlderFile() {
-    // $fname = "uploads/" . $fname;
-    // Grab all files from the desired folder
-    // $files = glob( 'uploads/*.*' );
-    // $directory = dirname(__DIR__) . '/uploads';
-    // echo $directory;
-    // $files = scandir("uploads/");
     $files = glob('uploads/*');
     if (count($files) > 999) {
         // usort($files, function($a, $b) {
         //     return filemtime($b) - filemtime($a);
         // });
-        echo json_encode($files);
+        // echo json_encode($files);
 
         // $files = scandir($directory);
 
@@ -33,9 +35,8 @@ function deleteOlderFile() {
         $files
         );
 
-        // echo $files // the latest modified file should be the first.
-        echo $files[0] , PHP_EOL;
-        echo unlink($files[0]) , PHP_EOL;
+        echo $files[0], PHP_EOL;
+        unlink($files[0]);
     }
 }
 
@@ -59,7 +60,7 @@ function guidv4($data = null) {
     // Set bits 6-7 to 10
     $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
 
-    // Output the 36 character UUID.
+    // Output the 36 character UUID.'
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
@@ -81,7 +82,8 @@ function createUuid () {
 
     // Print the array (optional)
     // echo json_encode($test);
-    // Shuffle the array
+    // Shuffle the arraysetupUploads();
+
     shuffle($allChars);
 
     // Create a string with all characters in the array
@@ -89,24 +91,26 @@ function createUuid () {
     for ($x = 0; $x < 10; $x++) {
         $uuid .= $allChars[$x];
     }
-    echo $uuid, PHP_EOL;
+    // echo $uuid, PHP_EOL;
     return $uuid;
 }
 
 // Define a function to handle the root route ("/")
 function handleRootRoute() {
+    setupUploads(); //? change this to init function here its called after each curl -> like this if you erase uploads in the middle of the process it wont crash >:)
     $fname = createUuid();
-    handleFiles($fname, "test file lol");
-    // echo guidv4();
-    echo "Hello W from your vanilla PHP API!";
+    handleFiles($fname, "test file lol"); // <- receive from the user and save it in uploads folder
+    echo "Hello W! You just uploaded a file from your vanilla PHP API! ", $fname, PHP_EOL;
 }
 
-// Register the route with a simple if-else statement
+// Register the route with a simple if-else statement -> add get here, and post here
+//! get /IAmExample will echo the content of the file
 if ($_SERVER['REQUEST_URI'] === '/') {
     handleRootRoute();
 } else {
     // Handle other routes (optional)
     // You can add additional if-else or switch statements to handle
     // other routes based on the request URI.
-    echo "404 Not Found";
+    echo "404 Not Found", PHP_EOL;
+    return;
 }
