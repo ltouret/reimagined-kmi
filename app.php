@@ -105,8 +105,13 @@ function handleRootRoute() {
 
 // Register the route with a simple if-else statement -> add get here, and post here
 //! get /IAmExample will echo the content of the file
-if ($_SERVER['REQUEST_URI'] === '/') {
+// if ($_SERVER['REQUEST_URI'] === '/' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_URI'] === '/paste' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo $_POST['kmi'], PHP_EOL;
     handleRootRoute();
+} else if ($_SERVER['REQUEST_URI'] !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
+    //! remove the first / of $_SERVER['REQUEST_URI']
+    echo "Here we return the file: ", $_SERVER['REQUEST_URI'], PHP_EOL;
 } else {
     // Handle other routes (optional)
     // You can add additional if-else or switch statements to handle
