@@ -7,6 +7,7 @@
 //! chnage all the quotes to "
 //! add setup functions that will init everything needed.
 
+//! you will go inside the function that creates the files
 function setupUploads() {
     if (is_dir("uploads/") == false) {
         echo "created", PHP_EOL;
@@ -41,12 +42,21 @@ function deleteOlderFile() {
 }
 
 // ! for now doesnt create direcotry uploads if doesnt exist its broken >:)
+//! change the add directory here
+//! instead of using die could use the fwrite and
+//! you will check if txt is max 512k
 function handleFiles($fname, $txt) {
     deleteOlderFile();
     $fname = "uploads/" . $fname;
-    $myfile = fopen($fname, "w") or die("Unable to open file!");
-    fwrite($myfile, $txt);
-    fclose($myfile);
+    $myfile = file_put_contents($fname, $txt);
+    if ($myfile == false) {
+        // fwrite(2, "An error occurred.\n"); //! test fwrite to STDERR and exit (1)?
+        //! add status code 500 somehow
+        http_response_code(500);
+        die("Error creating file". PHP_EOL);
+    }
+    // fwrite($myfile, $txt);
+    // fclose($myfile);
 }
 
 //! do i keep guidv4 or allChars?
@@ -87,7 +97,7 @@ function createUuid () {
     shuffle($allChars);
 
     // Create a string with all characters in the array
-    $uuid = '';
+    $uuid = "";
     for ($x = 0; $x < 10; $x++) {
         $uuid .= $allChars[$x];
     }
@@ -96,10 +106,12 @@ function createUuid () {
 }
 
 // Define a function to handle the root route ("/")
+//! you will be merged with handlefile and it will be renamed handleFileUpload
 function handleRootRoute() {
-    setupUploads(); //? change this to init function here its called after each curl -> like this if you erase uploads in the middle of the process it wont crash >:)
+    // setupUploads(); //? change this to init function here its called after each curl -> like this if you erase uploads in the middle of the process it wont crash >:)
     $fname = createUuid();
     handleFiles($fname, "test file lol"); // <- receive from the user and save it in uploads folder
+    http_response_code(201);
     echo "Hello W! You just uploaded a file from your vanilla PHP API! ", $fname, PHP_EOL;
 }
 
@@ -107,15 +119,30 @@ function handleRootRoute() {
 //! get /IAmExample will echo the content of the file
 // if ($_SERVER['REQUEST_URI'] === '/' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_URI'] === '/paste' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    //! return status code of 201
     echo $_POST['kmi'], PHP_EOL;
     handleRootRoute();
 } else if ($_SERVER['REQUEST_URI'] !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
+    //! move all of this to a function
     //! remove the first / of $_SERVER['REQUEST_URI']
-    echo "Here we return the file: ", $_SERVER['REQUEST_URI'], PHP_EOL;
+    //! return status code of 200
+    //! if fname is != len(10) then status code 404
+    $fname = "uploads/" . substr($_SERVER['REQUEST_URI'], 1);
+    $txt = file_get_contents($fname);
+    // ! would love to find a way to return 404 without going into this else if*
+    if ($txt == false) { //! This function may return Boolean false, but may also return a non-Boolean value
+        http_response_code(404);
+        echo "404 Not Found", PHP_EOL;
+        return;
+    }
+    http_response_code(200);
+    echo "Here we return the file content: ", $txt, PHP_EOL;
 } else {
     // Handle other routes (optional)
     // You can add additional if-else or switch statements to handle
     // other routes based on the request URI.
+    //! return status code of 404
+    http_response_code(404);
     echo "404 Not Found", PHP_EOL;
     return;
 }
