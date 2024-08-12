@@ -6,6 +6,7 @@
 //! chnage all the quotes to "
 //! rename this file and/or cut this into several files?
 //! ($_SERVER["REQUEST_URI"] === "/last") { //? this must be removed made to debug ***
+//! add real domain in POST echo
 // change this error message case "Empty string >:)!":
 
 //! ERASE ME WHEN DONE ****
@@ -27,12 +28,10 @@ function printLatestFile() {
         http_response_code(200);
         echo $content, PHP_EOL; //! DONT ADD EOL HERE, remove when done
 }
+//! ERASE ME WHEN DONE ****
 
 //? service.php
-//! deleteOlderFile oldest file
-// ! for now doesnt create direcotry uploads if doesnt exist its broken >:)
 // ! test on docker too -> and phone what works better?
-//! dont delete IAmExample >:) -> so we have a max of 1001 files
 function deleteOlderFile() {
     $files = glob("uploads/*");
     if (count($files) > 1000) {
@@ -44,32 +43,8 @@ function deleteOlderFile() {
         );
 
         //! remove second oldest file as first one is IAmExample 
-        echo $files[1], PHP_EOL; //! remove me
         unlink($files[1]);
     }
-}
-
-function handleFileUpload($content) {
-    deleteOlderFile();
-    $content_size = strlen($content);
-    // echo $content_size, PHP_EOL;
-    if ($content_size > 512000) {
-        throw new Exception("Max size is 512Kb");
-    }
-    if ($content_size === 0) {
-        throw new Exception("Empty string >:)!", 400); //! USE THIS NOT SWITCH CASE IN controller!
-    }
-    if (is_dir("uploads/") === false) {
-        if (!mkdir("uploads/", 0755)) {
-            throw new Exception("Failed to create directory");
-        }
-    }
-    $fileName = createUuid();
-    $myfile = @file_put_contents("uploads/" . $fileName, $content);
-    if ($myfile == false) {
-        throw new Exception("Error creating file");
-    }
-    return $fileName;
 }
 
 function createUuid() {
@@ -89,21 +64,41 @@ function createUuid() {
     return $uuid;
 }
 
-function serveFileFromRequestUri($fileName) {
+function handleFileUpload($content) {
+    deleteOlderFile();
+    $content_size = strlen($content);
+    if ($content_size > 512000) {
+        throw new Exception("Max size is 512Kb", 413);
+    }
+    if ($content_size === 0) {
+        throw new Exception("The KMI god expects a string, without a string he cant do magic!", 400);
+    }
+    if (is_dir("uploads/") === false) {
+        if (!mkdir("uploads/", 0755)) {
+            throw new Exception("Failed to create directory", 500);
+        }
+    }
+    $fileName = createUuid();
+    $myfile = @file_put_contents("uploads/" . $fileName, $content);
+    if ($myfile == false) {
+        throw new Exception("Error creating file", 500);
+    }
+    return $fileName;
+}
+
+function serveFileFromUri($fileName) {
     $fileName = "uploads" . $fileName;
-    $content = @file_get_contents($fileName); //! ADD THIS TO OTHER! -> Suppress warnings with @
-    if ($content === false) {
+    $content = @file_get_contents($fileName);
+    if ($content == false) {
         throw new Exception("File not found", 404);
     }
     return $content;
 }
 
-// echo $_SERVER["REQUEST_METHOD"], " ", $_SERVER["REQUEST_URI"], PHP_EOL;
 //? all reponses are text plain
 header("Content-Type: text/plain");
 
 //? router - (controller).php
-//! get /IAmExample will echo the content of the file!
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
     try {
         $content = $_POST["kmi"];
@@ -112,47 +107,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste
         //! add here my domain name maybe use .env?
         echo $fileName, PHP_EOL;
     } catch (Exception $e) {
-        //! Change this to new exception method
-        $errMsg = $e->getMessage();
-        switch ($errMsg) {
-            case "Max size is 512Kb":
-                http_response_code(413); // Payload Too Large
-                break;
-            case "Empty string >:)!":
-                http_response_code(400); // Bad Request
-                break;
-            default:
-                http_response_code(500); // Default to Internal Server Error for unknown issues
-                break;
-        }
-        echo $errMsg, $e->getCode();
+        http_response_code($e->getCode());
+        echo $e->getMessage(), PHP_EOL;
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "GET" && mb_strlen($_SERVER["REQUEST_URI"]) === 11) {
     try {
         $fileName = $_SERVER["REQUEST_URI"];
-        $content = serveFileFromRequestUri($fileName);
+        $content = serveFileFromUri($fileName);
         http_response_code(200);
-        echo $content; // Serve the file content
+        echo $content;
     } catch (Exception $e) {
-        http_response_code($e->getCode()); // Set the HTTP response code based on the exception
-        echo $e->getMessage(), PHP_EOL; // Output the exception message
+        http_response_code($e->getCode());
+        echo $e->getMessage(), PHP_EOL;
     }
-    //! move all of this to a function
-    // $fileName = "uploads" . $_SERVER["REQUEST_URI"];
-    // $content = file_get_contents($fileName);
-    // // ! would love to find a way to return 404 without going into this else if*
-    // if ($content == false) { //! This function may return Boolean false, but may also return a non-Boolean value
-    //     http_response_code(404);
-    //     echo "404 Not Found", PHP_EOL;
-    //     return;
-    // }
-    // http_response_code(200);
-    // echo $content, PHP_EOL; //! DONT ADD EOL HERE, remove when done 
-} else if ($_SERVER["REQUEST_URI"] === "/last") { //? this must be removed made to debug ***
-    printLatestFile(); //! REMOVE THIS
+} else if ($_SERVER["REQUEST_URI"] === "/teapot") {
+        http_response_code(418);
+        echo "I'm a teapot", PHP_EOL;
+        printLatestFile(); //! REMOVE THIS
 } else {
     //! return status code of 404 or what else? just 404 or 409? 405??
     http_response_code(404);
-    echo "404 Not Found", PHP_EOL;
-    return;
+    echo "File Not Found", PHP_EOL;
 }
