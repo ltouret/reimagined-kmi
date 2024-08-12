@@ -103,7 +103,7 @@ function serveFileFromRequestUri($fileName) {
 header("Content-Type: text/plain");
 
 //? router - (controller).php
-//! get /IAmExample will echo the content of the file
+//! get /IAmExample will echo the content of the file!
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
     try {
         $content = $_POST["kmi"];
