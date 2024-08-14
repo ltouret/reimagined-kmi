@@ -1,16 +1,12 @@
-# Use a minimal PHP image
-FROM php:7.4-cli
+# Use an official PHP image with FPM
+FROM php:8.1-fpm-alpine
 
-# Set working directory
-WORKDIR /var/www/html
+RUN apk add --no-cache nginx
+# Copy your application code
+# COPY . /var/www/html
 
-# Copy the current directory content to the container
-#COPY . .
-# Mount the current directory as a volume
-#VOLUME ["/var/www/html"]
+# Expose Nginx port
+EXPOSE 80
 
-# Expose port 8080
-EXPOSE 8080
-
-# Start PHP built-in server on port 8080
-CMD ["php", "-S", "0.0.0.0:8080", "app.php"]
+# Start Nginx (assuming it's already installed in the image)
+CMD ["nginx", "-g", "daemon off;"]

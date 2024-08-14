@@ -1,5 +1,7 @@
 <?php
 
+require_once "./config.php";
+
 //! add return types?
 //! change to last php version?
 //! removes echos
@@ -7,7 +9,10 @@
 //! chnage all the quotes to "
 //! add setup functions that will init everything needed.
 
+setupUploads();
+
 function setupUploads() {
+    echo "created", PHP_EOL;
     if (is_dir("uploads/") == false) {
         echo "created", PHP_EOL;
         mkdir("uploads", 0755);
@@ -18,11 +23,11 @@ function setupUploads() {
 // ! for now doesnt create direcotry uploads if doesnt exist its broken >:)
 function deleteOlderFile() {
     $files = glob('uploads/*');
+    // echo json_encode($files);
     if (count($files) > 999) {
         // usort($files, function($a, $b) {
         //     return filemtime($b) - filemtime($a);
         // });
-        // echo json_encode($files);
 
         // $files = scandir($directory);
 
@@ -49,22 +54,6 @@ function handleFiles($fname, $txt) {
     fclose($myfile);
 }
 
-//! do i keep guidv4 or allChars?
-function guidv4($data = null) {
-    // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
-    $data = $data ?? random_bytes(16);
-    assert(strlen($data) == 16);
-
-    // Set version to 0100
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    // Set bits 6-7 to 10
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
-
-    // Output the 36 character UUID.'
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-}
-
-
 //! do i keep test or allChars?
 function createUuid () {
     $uppercase = range('A', 'Z');
@@ -82,7 +71,7 @@ function createUuid () {
 
     // Print the array (optional)
     // echo json_encode($test);
-    // Shuffle the arraysetupUploads();
+    // Shuffle the array();
 
     shuffle($allChars);
 
@@ -97,7 +86,6 @@ function createUuid () {
 
 // Define a function to handle the root route ("/")
 function handleRootRoute() {
-    setupUploads(); //? change this to init function here its called after each curl -> like this if you erase uploads in the middle of the process it wont crash >:)
     $fname = createUuid();
     handleFiles($fname, "test file lol"); // <- receive from the user and save it in uploads folder
     echo "Hello W! You just uploaded a file from your vanilla PHP API! ", $fname, PHP_EOL;
@@ -114,3 +102,4 @@ if ($_SERVER['REQUEST_URI'] === '/') {
     echo "404 Not Found", PHP_EOL;
     return;
 }
+?>
