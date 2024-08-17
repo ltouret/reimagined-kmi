@@ -5,12 +5,11 @@ FROM php:7.4-cli
 WORKDIR /var/www/html
 
 # Copy the current directory content to the container
-#COPY . .
-# Mount the current directory as a volume
-#VOLUME ["/var/www/html"]
+COPY . .
 
 # Expose port 8080
 EXPOSE 8080
 
 # Start PHP built-in server on port 8080
-CMD ["php", "-S", "0.0.0.0:8080", "app.php"]
+RUN chmod +x ./start.sh
+ENTRYPOINT ["./start.sh"]

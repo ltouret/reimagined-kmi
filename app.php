@@ -1,14 +1,9 @@
 <?php
 
-//! add return types to funcs?
 //! change to last php version docker?
-//! removes usless echos
-//! chnage all the quotes to "
-//! rename this file and/or cut this into several files?
-//! ($_SERVER["REQUEST_URI"] === "/last") { //? this must be removed made to debug ***
 //! add real domain in POST echo using .env in docker and for phone in a bash file
 
-//? service.php
+//? services - (model)
 // ! test on docker too -> and phone what works better?
 function deleteOlderFile() {
     $files = glob("uploads/*");
@@ -20,7 +15,6 @@ function deleteOlderFile() {
         $files
         );
 
-        //! remove second oldest file as first one is IAmExample 
         unlink($files[1]);
     }
 }
@@ -73,11 +67,9 @@ function serveFileFromUri($fileName) {
     return $content;
 }
 
-//? all reponses are text plain
 header("Content-Type: text/plain");
-echo PHP_EOL;
 
-//? router - (controller).php
+//? router - (controller)
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
     try {
         $domain = getenv("DOMAIN");
@@ -100,10 +92,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste
         echo $e->getMessage(), PHP_EOL;
     }
 } else if ($_SERVER["REQUEST_URI"] === "/teapot") {
-        http_response_code(418);
-        echo "I'm a teapot", PHP_EOL;
+    http_response_code(418);
+    echo "I'm a teapot", PHP_EOL;
 } else {
-    //! return status code of 404 or what else? just 404 or 409? 405??
     http_response_code(404);
     echo "File Not Found", PHP_EOL;
 }
