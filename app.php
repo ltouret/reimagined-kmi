@@ -6,29 +6,7 @@
 //! chnage all the quotes to "
 //! rename this file and/or cut this into several files?
 //! ($_SERVER["REQUEST_URI"] === "/last") { //? this must be removed made to debug ***
-//! add real domain in POST echo
-// change this error message case "Empty string >:)!":
-
-//! ERASE ME WHEN DONE ****
-function printLatestFile() {
-    $files = glob("uploads/*");
-        array_multisort(
-        array_map( "filemtime", $files ),
-        SORT_NUMERIC,
-        SORT_DESC,
-        $files
-        );
-        $content = file_get_contents($files[0]);
-        // ! would love to find a way to return 404 without going into this else if*
-        if ($content == false) { //! This function may return Boolean false, but may also return a non-Boolean value
-            http_response_code(404);
-            echo "404 Not Found", PHP_EOL;
-            return;
-        }
-        http_response_code(200);
-        echo $content, PHP_EOL; //! DONT ADD EOL HERE, remove when done
-}
-//! ERASE ME WHEN DONE ****
+//! add real domain in POST echo using .env in docker and for phone in a bash file
 
 //? service.php
 // ! test on docker too -> and phone what works better?
@@ -97,15 +75,16 @@ function serveFileFromUri($fileName) {
 
 //? all reponses are text plain
 header("Content-Type: text/plain");
+echo PHP_EOL;
 
 //? router - (controller).php
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
     try {
+        $domain = getenv("DOMAIN");
         $content = $_POST["kmi"];
-        $fileName = handleFileUpload($content);
+        $userLink = $domain . handleFileUpload($content);
         http_response_code(201);
-        //! add here my domain name maybe use .env?
-        echo $fileName, PHP_EOL;
+        echo $userLink, PHP_EOL;
     } catch (Exception $e) {
         http_response_code($e->getCode());
         echo $e->getMessage(), PHP_EOL;
@@ -123,7 +102,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste
 } else if ($_SERVER["REQUEST_URI"] === "/teapot") {
         http_response_code(418);
         echo "I'm a teapot", PHP_EOL;
-        printLatestFile(); //! REMOVE THIS
 } else {
     //! return status code of 404 or what else? just 404 or 409? 405??
     http_response_code(404);
