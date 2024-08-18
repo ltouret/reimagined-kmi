@@ -28,10 +28,10 @@ To use Reimagined-KMI, you'll need to configure the domain from which the servic
 To upload a file named `hello-world.c`, execute the following command in your terminal:
 
 ```bash
-cat hello-world.c | curl -F 'kmi=<-' https://yourdomain.com
+cat hello-world.c | curl -F 'kmi=<-' https://yourdomain.com/paste
 ```
 
-After uploading, you'll receive a unique identifier (e.g., `IAmExample`). You can then access your snippet using this identifier.
+After uploading, you'll receive a link with an unique identifier (e.g., `https://yourdomain.com/IAmExample`). You can then access your snippet using this link.
 
 #### Viewing Snippets
 
