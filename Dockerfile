@@ -1,5 +1,5 @@
 # Use a minimal PHP image
-FROM php:7.4-cli
+FROM php:8.3.11RC1-cli-alpine3.20
 
 # Set working directory
 WORKDIR /var/www/html

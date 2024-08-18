@@ -51,7 +51,8 @@ function handleFileUpload($content) {
         }
     }
     $fileName = createUuid();
-    $myfile = @file_put_contents("uploads/" . $fileName, $content);
+    $path = "uploads/" . $fileName;
+    $myfile = @file_put_contents($path, $content);
     if ($myfile == false) {
         throw new Exception("Error creating file", 500);
     }
@@ -74,9 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste
     try {
         $domain = getenv("DOMAIN");
         $content = $_POST["kmi"];
-        $userLink = $domain . handleFileUpload($content);
+        $fileUri = $domain . handleFileUpload($content);
         http_response_code(201);
-        echo $userLink, PHP_EOL;
+        echo $fileUri, PHP_EOL;
     } catch (Exception $e) {
         http_response_code($e->getCode());
         echo $e->getMessage(), PHP_EOL;
