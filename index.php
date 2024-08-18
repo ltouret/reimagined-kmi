@@ -1,10 +1,5 @@
 <?php
-
-//! change to last php version docker?
-//! add real domain in POST echo using .env in docker and for phone in a bash file
-
 //? services - (model)
-// ! test on docker too -> and phone what works better?
 function deleteOlderFile() {
     $files = glob("uploads/*");
     if (count($files) > 1000) {
@@ -71,17 +66,37 @@ function serveFileFromUri($fileName) {
 header("Content-Type: text/plain");
 
 //? router - (controller)
-if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
-    try {
-        $domain = getenv("DOMAIN");
-        $content = $_POST["kmi"];
-        $fileUri = $domain . handleFileUpload($content);
-        http_response_code(201);
-        echo $fileUri, PHP_EOL;
-    } catch (Exception $e) {
-        http_response_code($e->getCode());
-        echo $e->getMessage(), PHP_EOL;
-    }
+if ($_SERVER["REQUEST_METHOD"] === "GET" && $_SERVER["REQUEST_URI"] === "/") {
+    $domain = getenv("DOMAIN");
+    http_response_code(200);
+    echo <<<EOT
+    NAME
+        reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
+
+    SYNOPSIS
+        <command> | curl -F 'kmi=<-' {$domain}
+
+    DESCRIPTION
+        Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
+        It enables users to quickly share text snippets without the need for registration.
+
+        Features:
+        - Anonymous posting: No registration required to share your snippets.
+        - Fast operation: Designed for quick uploads and retrievals.
+
+    LIMITS
+        - Storage time: Unlimited, but data may be pruned at any time.
+        - Maximum post size: Limited to 512KB.
+
+    EXAMPLES
+        To upload a file named `hello-world.c`:
+        ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}
+        Output: {$domain}IAmExample
+
+        To view the uploaded snippet with curl:
+        ~$ curl {$domain}IAmExample
+
+    EOT;
 } else if ($_SERVER["REQUEST_METHOD"] === "GET" && mb_strlen($_SERVER["REQUEST_URI"]) === 11) {
     try {
         $fileName = $_SERVER["REQUEST_URI"];
@@ -92,10 +107,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste
         http_response_code($e->getCode());
         echo $e->getMessage(), PHP_EOL;
     }
-} else if ($_SERVER["REQUEST_URI"] === "/teapot") {
-    http_response_code(418);
-    echo "I'm a teapot", PHP_EOL;
+} else if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
+    try {
+        $domain = getenv("DOMAIN");
+        $content = $_POST["kmi"];
+        $fileUri = $domain . handleFileUpload($content);
+        http_response_code(201);
+        echo $fileUri, PHP_EOL;
+    } catch (Exception $e) {
+        http_response_code($e->getCode());
+        echo $e->getMessage(), PHP_EOL;
+    }
 } else {
     http_response_code(404);
     echo "File Not Found", PHP_EOL;
 }
+?>
