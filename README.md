@@ -42,7 +42,7 @@ curl https://yourdomain.com/IAmExample
 
 ## Running Locally
 
-If you prefer to run the application locally instead of using Docker, ensure you have PHP version 7.4 or higher installed. Then, follow these steps:
+If you prefer to run the application locally instead of using Docker, ensure you have PHP CLI version 7.4 or higher installed. Then, follow these steps:
 
 1. Navigate to the root directory of the project in your terminal.
 2. Execute the following command to start the application: ```sh ./start.sh```

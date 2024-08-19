@@ -63,49 +63,51 @@ function serveFileFromUri($fileName) {
     return $content;
 }
 
+//! need to add into readme we need php-mbstring for some distros
 header("Content-Type: text/plain");
 
 //? router - (controller)
-if ($_SERVER["REQUEST_METHOD"] === "GET" && $_SERVER["REQUEST_URI"] === "/") {
-    $domain = getenv("DOMAIN");
-    http_response_code(200);
-    echo <<<EOT
-    NAME
-        reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
-
-    SYNOPSIS
-        <command> | curl -F 'kmi=<-' {$domain}
-
-    DESCRIPTION
-        Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
-        It enables users to quickly share text snippets without the need for registration.
-
-        Features:
-        - Anonymous posting: No registration required to share your snippets.
-        - Fast operation: Designed for quick uploads and retrievals.
-
-    LIMITS
-        - Storage time: Unlimited, but data may be pruned at any time.
-        - Maximum post size: Limited to 512KB.
-
-    EXAMPLES
-        To upload a file named `hello-world.c`:
-        ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}
-        Output: {$domain}IAmExample
-
-        To view the uploaded snippet with curl:
-        ~$ curl {$domain}IAmExample
-
-    EOT;
-} else if ($_SERVER["REQUEST_METHOD"] === "GET" && mb_strlen($_SERVER["REQUEST_URI"]) === 11) {
-    try {
-        $fileName = $_SERVER["REQUEST_URI"];
-        $content = serveFileFromUri($fileName);
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if ($_SERVER["REQUEST_URI"] === "/") {
+        $domain = getenv("DOMAIN");
         http_response_code(200);
-        echo $content;
-    } catch (Exception $e) {
-        http_response_code($e->getCode());
-        echo $e->getMessage(), PHP_EOL;
+        echo <<<EOT
+        NAME
+            reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
+
+        SYNOPSIS
+            <command> | curl -F 'kmi=<-' {$domain}
+
+        DESCRIPTION
+            Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
+            It enables users to quickly share text snippets without the need for registration.
+
+            Features:
+            - Anonymous posting: No registration required to share your snippets.
+
+        LIMITS
+            - Storage time: Unlimited, but data may be pruned at any time.
+            - Maximum post size: Limited to 512KB.
+
+        EXAMPLES
+            To upload a file named `hello-world.c`:
+            ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}
+            Output: {$domain}IAmExample
+
+            To view the uploaded snippet with curl:
+            ~$ curl {$domain}IAmExample
+
+        EOT;
+    } else if (mb_strlen($_SERVER["REQUEST_URI"]) === 11) {
+        try {
+            $fileName = $_SERVER["REQUEST_URI"];
+            $content = serveFileFromUri($fileName);
+            http_response_code(200);
+            echo $content;
+        } catch (Exception $e) {
+            http_response_code($e->getCode());
+            echo $e->getMessage(), PHP_EOL;
+        }
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "POST" && $_SERVER["REQUEST_URI"] === "/paste") {
     try {
