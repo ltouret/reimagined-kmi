@@ -3,7 +3,7 @@
 Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
 It enables users to quickly share text snippets without the need for registration.
 
-Visit the [live demo](http://kmi.example.com) to see Reimagined-KMI in action.
+Visit the [live demo](http://kmi.ltouret.dev) to see Reimagined-KMI in action.
 
 ## Features
 
@@ -20,6 +20,7 @@ To use Reimagined-KMI, you'll need to configure the domain from which the servic
 
 1. Clone the repository to your local machine.
 2. Modify the `.env.example` file in the root directory of the project with your domain and rename it to `.env`.
+3. You may need to install additional dependencies for your distribution. On Ubuntu-based systems, you might need php-mbstring.
 
 ## Usage Examples
 
@@ -28,7 +29,7 @@ To use Reimagined-KMI, you'll need to configure the domain from which the servic
 To upload a file named `hello-world.c`, execute the following command in your terminal:
 
 ```bash
-cat hello-world.c | curl -F 'kmi=<-' https://yourdomain.com/paste
+cat hello-world.c | curl -F 'kmi=<-' https://yourdomain.com
 ```
 
 After uploading, you'll receive a link with an unique identifier (e.g., `https://yourdomain.com/IAmExample`). You can then access your snippet using this link.

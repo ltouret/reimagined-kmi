@@ -68,9 +68,45 @@ function handleError($code, $message) {
     echo $message, PHP_EOL;
 }
 
-//! need to add into readme we need php-mbstring for some distros
+function handleTerminalResponse() {
+    $reset = "\033[0m";
+    $bold = "\033[1m";
+    $underline = "\033[4m";
+    $italic = "\033[3m";
+    $cyan = "\033[96m";
+    $green = "\033[92m";
+    $yellow = "\033[93m";
+
+    echo <<<EOT
+    {$bold}NAME{$reset}
+        {$cyan}reimagined-kmi{$reset} - a pure PHP Implementation of command line pastebin, anonymous, fast
+
+    {$bold}SYNOPSIS{$reset}
+        {$underline}<command>{$reset} | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
+
+    {$bold}DESCRIPTION{$reset}
+        Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
+        It enables users to quickly share text snippets without the need for registration.
+
+        {$bold}Features:{$reset}
+        - {$green}Anonymous posting:{$reset} No registration required to share your snippets.
+
+    {$bold}LIMITS{$reset}
+        - Storage time: Unlimited, but data may be pruned at any time.
+        - Maximum post size: Limited to 512KB.
+
+    {$bold}EXAMPLES{$reset}
+        To upload a file named `hello-world.c`:
+        {$underline}~$ cat hello-world.c | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
+        Output: {$yellow}{$domain}IAmExample{$reset}
+
+        To view the uploaded snippet with curl:
+        {$underline}~$ curl {$yellow}{$domain}IAmExample{$reset}
+
+    EOT;
+}
+
 header("Content-Type: text/plain");
-define('ROOT_PATH', '/');
 
 //? router - (controller)
 switch ($_SERVER["REQUEST_METHOD"]) {
@@ -78,62 +114,71 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         if ($_SERVER["REQUEST_URI"] === "/") {
             $domain = getenv("DOMAIN");
             http_response_code(200);
-            // echo <<<EOT
-            // NAME
-            //     reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
+            if (strpos($_SERVER['HTTP_USER_AGENT'], 'curl') !== false) {
+                $reset = "\033[0m";
+                $bold = "\033[1m";
+                $underline = "\033[4m";
+                $italic = "\033[3m";
+                $cyan = "\033[96m";
+                $green = "\033[92m";
+                $yellow = "\033[93m";
 
-            // SYNOPSIS
-            //     <command> | curl -F 'kmi=<-' {$domain}
+                echo <<<EOT
+                {$bold}NAME{$reset}
+                    {$cyan}reimagined-kmi{$reset} - a pure PHP Implementation of command line pastebin, anonymous, fast
 
-            // DESCRIPTION
-            //     Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
-            //     It enables users to quickly share text snippets without the need for registration.
+                {$bold}SYNOPSIS{$reset}
+                    {$underline}<command>{$reset} | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
 
-            //     Features:
-            //     - Anonymous posting: No registration required to share your snippets.
+                {$bold}DESCRIPTION{$reset}
+                    Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
+                    It enables users to quickly share text snippets without the need for registration.
 
-            // LIMITS
-            //     - Storage time: Unlimited, but data may be pruned at any time.
-            //     - Maximum post size: Limited to 512KB.
+                    {$bold}Features:{$reset}
+                    - {$green}Anonymous posting:{$reset} No registration required to share your snippets.
 
-            // EXAMPLES
-            //     To upload a file named `hello-world.c`:
-            //     ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}/paste
-            //     Output: {$domain}IAmExample
+                {$bold}LIMITS{$reset}
+                    - Storage time: Unlimited, but data may be pruned at any time.
+                    - Maximum post size: Limited to 512KB.
 
-            //     To view the uploaded snippet with curl:
-            //     ~$ curl {$domain}IAmExample
+                {$bold}EXAMPLES{$reset}
+                    To upload a file named `hello-world.c`:
+                    {$underline}~$ cat hello-world.c | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
+                    Output: {$yellow}{$domain}IAmExample{$reset}
 
-            // EOT;
+                    To view the uploaded snippet with curl:
+                    {$underline}~$ curl {$yellow}{$domain}IAmExample{$reset}
 
-            //! this can be done in one echo instead of all those!
-            $reset = "\033[0m";
-            $bold = "\033[1m";
-            $underline = "\033[4m";
-            $italic = "\033[3m";
-            $cyan = "\033[96m";
-            $green = "\033[92m";
-            $yellow = "\033[93m";
+                EOT;
+            } else {
+                echo <<<EOT
+                NAME
+                    reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
 
-            echo "{$bold}NAME{$reset}\n";
-            echo "    {$cyan}reimagined-kmi{$reset} - a pure PHP Implementation of command line pastebin, anonymous, fast\n\n";
+                SYNOPSIS
+                    <command> | curl -F 'kmi=<-' {$domain}
 
-            echo "{$bold}SYNOPSIS{$reset}\n";
-            echo "    {$underline}<command>{$reset} | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}\n\n";
-            echo "    {$bold}Features:{$reset}\n";
-            echo "    - {$green}Anonymous posting:{$reset} No registration required to share your snippets.\n\n";
+                DESCRIPTION
+                    Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
+                    It enables users to quickly share text snippets without the need for registration.
 
-            echo "{$bold}LIMITS{$reset}\n";
-            echo "    - Storage time: Unlimited, but data may be pruned at any time.\n";
-            echo "    - Maximum post size: Limited to 512KB.\n\n";
+                    Features:
+                    - Anonymous posting: No registration required to share your snippets.
 
-            echo "{$bold}EXAMPLES{$reset}\n";
-            echo "    To upload a file named `hello-world.c`:\n";
-            echo "    {$underline}~$ cat hello-world.c | curl -F 'kmi=<-' {$yellow}{$domain}/paste{$reset}\n";
-            echo "    Output: {$yellow}{$domain}IAmExample{$reset}\n\n";
+                LIMITS
+                    - Storage time: Unlimited, but data may be pruned at any time.
+                    - Maximum post size: Limited to 512KB.
 
-            echo "    To view the uploaded snippet with curl:\n";
-            echo "    {$underline}~$ curl {$yellow}{$domain}IAmExample{$reset}\n";
+                EXAMPLES
+                    To upload a file named `hello-world.c`:
+                    ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}
+                    Output: {$domain}IAmExample
+
+                    To view the uploaded snippet with curl:
+                    ~$ curl {$domain}IAmExample
+
+                EOT;
+            }
         } else {
             try {
                 $fileName = $_SERVER["REQUEST_URI"];
@@ -146,7 +191,6 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         }
         break;
 
-    //! this place has twice the same code rework
     case "POST":
         if ($_SERVER["REQUEST_URI"] === "/") {
             try {
@@ -158,27 +202,13 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             } catch (Exception $e) {
                 handleError($e->getCode(), $e->getMessage());
             }
-        } else if ($_SERVER["REQUEST_URI"] === "/paste") {
-            //! This needs to be added to the man
-            try {
-                $domain = getenv("DOMAIN");
-                $content = $_POST["kmi"];
-                $fileUri = $domain . handleFileUpload($content);
-                http_response_code(302);
-                header("Location: {$fileUri}");
-                echo "You should be redirected automatically to the target URL: ", $fileUri, PHP_EOL;
-            } catch (Exception $e) {
-                handleError($e->getCode(), $e->getMessage());
-            }
         } else {
-            http_response_code(400);
-            echo "Bad Request", PHP_EOL;
+            handleError(400, "Bad Request");
         }
         break;
 
     default:
-        http_response_code(405);
-        echo "Method Not Allowed", PHP_EOL;
+        handleError(405, "Method Not Allowed");
         break;
 }
 ?>
