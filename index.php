@@ -68,14 +68,26 @@ function handleError($code, $message) {
     echo $message, PHP_EOL;
 }
 
-function handleTerminalResponse() {
-    $reset = "\033[0m";
-    $bold = "\033[1m";
-    $underline = "\033[4m";
-    $italic = "\033[3m";
-    $cyan = "\033[96m";
-    $green = "\033[92m";
-    $yellow = "\033[93m";
+function handleTerminalResponse($flag) {
+    $domain = getenv("DOMAIN");
+
+    if ($flag) {
+        $reset = "\033[0m";
+        $bold = "\033[1m";
+        $underline = "\033[4m";
+        $italic = "\033[3m";
+        $cyan = "\033[96m";
+        $green = "\033[92m";
+        $yellow = "\033[93m";
+    } else {
+        $reset = "";
+        $bold = "";
+        $underline = "";
+        $italic = "";
+        $cyan = "";
+        $green = "";
+        $yellow = "";
+    }
 
     echo <<<EOT
     {$bold}NAME{$reset}
@@ -112,72 +124,11 @@ header("Content-Type: text/plain");
 switch ($_SERVER["REQUEST_METHOD"]) {
     case "GET":
         if ($_SERVER["REQUEST_URI"] === "/") {
-            $domain = getenv("DOMAIN");
             http_response_code(200);
             if (strpos($_SERVER['HTTP_USER_AGENT'], 'curl') !== false) {
-                $reset = "\033[0m";
-                $bold = "\033[1m";
-                $underline = "\033[4m";
-                $italic = "\033[3m";
-                $cyan = "\033[96m";
-                $green = "\033[92m";
-                $yellow = "\033[93m";
-
-                echo <<<EOT
-                {$bold}NAME{$reset}
-                    {$cyan}reimagined-kmi{$reset} - a pure PHP Implementation of command line pastebin, anonymous, fast
-
-                {$bold}SYNOPSIS{$reset}
-                    {$underline}<command>{$reset} | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
-
-                {$bold}DESCRIPTION{$reset}
-                    Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
-                    It enables users to quickly share text snippets without the need for registration.
-
-                    {$bold}Features:{$reset}
-                    - {$green}Anonymous posting:{$reset} No registration required to share your snippets.
-
-                {$bold}LIMITS{$reset}
-                    - Storage time: Unlimited, but data may be pruned at any time.
-                    - Maximum post size: Limited to 512KB.
-
-                {$bold}EXAMPLES{$reset}
-                    To upload a file named `hello-world.c`:
-                    {$underline}~$ cat hello-world.c | curl -F 'kmi=<-' {$yellow}{$domain}{$reset}
-                    Output: {$yellow}{$domain}IAmExample{$reset}
-
-                    To view the uploaded snippet with curl:
-                    {$underline}~$ curl {$yellow}{$domain}IAmExample{$reset}
-
-                EOT;
+                handleTerminalResponse(true);
             } else {
-                echo <<<EOT
-                NAME
-                    reimagined-kmi - a pure PHP Implementation of command line pastebin, anonymous, fast
-
-                SYNOPSIS
-                    <command> | curl -F 'kmi=<-' {$domain}
-
-                DESCRIPTION
-                    Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
-                    It enables users to quickly share text snippets without the need for registration.
-
-                    Features:
-                    - Anonymous posting: No registration required to share your snippets.
-
-                LIMITS
-                    - Storage time: Unlimited, but data may be pruned at any time.
-                    - Maximum post size: Limited to 512KB.
-
-                EXAMPLES
-                    To upload a file named `hello-world.c`:
-                    ~$ cat hello-world.c | curl -F 'kmi=<-' {$domain}
-                    Output: {$domain}IAmExample
-
-                    To view the uploaded snippet with curl:
-                    ~$ curl {$domain}IAmExample
-
-                EOT;
+                handleTerminalResponse(false);
             }
         } else {
             try {
