@@ -3,7 +3,7 @@
 Reimagined-KMI is a project developed in pure PHP, aiming to replicate the functionality of a command line pastebin service.
 It enables users to quickly share text snippets without the need for registration.
 
-Visit the [live demo](http://kmi.ltouret.dev) to see Reimagined-KMI in action.
+Visit the [live demo](https://kmi.ltouret.dev) to see Reimagined-KMI in action.
 
 ## Features
 
