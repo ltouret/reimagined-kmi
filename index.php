@@ -38,7 +38,7 @@ function handleFileUpload($content) {
         throw new Exception("Max size is 512Kb", 413);
     }
     if ($content_size === 0) {
-        throw new Exception("The KMI god expects a string, without a string he cant do magic!", 400);
+        throw new Exception("The KMI god expects a string, without a string he cant do his magic!", 400);
     }
     if (is_dir("uploads/") === false) {
         if (!mkdir("uploads/", 0755)) {
@@ -143,7 +143,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "POST":
-        if ($_SERVER["REQUEST_URI"] === "/") {
+        if ($_SERVER["REQUEST_URI"] === "/" && isset($_POST["kmi"])) {
             try {
                 $domain = getenv("DOMAIN");
                 $content = $_POST["kmi"];
